@@ -1,4 +1,4 @@
-# xesende
+# xesende ![Build status](https://travis-ci.org/hawx/xesende.svg)
 
 A client for the [Esendex REST API][esendex].
 
