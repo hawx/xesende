@@ -1,9 +1,11 @@
 package xesende
 
 import (
+	"fmt"
 	"net/http/httptest"
 	"net/url"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -18,9 +20,23 @@ func ExampleAccountClient_Send() {
 
 func TestSendSingleMessage(t *testing.T) {
 	const (
-		batchID    = "batchID"
-		messageID  = "messageID"
-		messageURI = "messageURI"
+		batchID          = "batchID"
+		messageID        = "messageID"
+		messageURI       = "messageURI"
+		accountReference = "EXWHATEVS"
+		to               = "358973"
+		from             = "mehehherrr"
+		body             = "HWEYERW"
+		messageType      = "heeeebss"
+		lang             = ".asmd.amd,ma.s,dma"
+		validity         = 234
+		characterSet     = "alkjhsdajklhsd"
+		retries          = 10292
+	)
+
+	var (
+		sendAt    = time.Date(2015, 12, 31, 23, 59, 59, 999, time.UTC)
+		sendAtStr = "2015-12-31T23:59:59.000000999Z"
 	)
 
 	h := newRecordingHandler(`<?xml version="1.0" encoding="utf-8"?>
@@ -33,10 +49,18 @@ func TestSendSingleMessage(t *testing.T) {
 	client := New("user", "pass")
 	client.BaseURL, _ = url.Parse(s.URL)
 
-	account := client.Account("EXWHATEVS")
+	account := client.Account(accountReference)
 
 	result, err := account.Send([]Message{
-		{To: "358973", Body: "HWEYERW"},
+		{
+			To:           to,
+			Body:         body,
+			SendAt:       sendAt,
+			MessageType:  messageType,
+			Lang:         lang,
+			Validity:     validity,
+			Retries:      retries,
+			CharacterSet: characterSet},
 	})
 
 	assert := assert.New(t)
@@ -45,6 +69,22 @@ func TestSendSingleMessage(t *testing.T) {
 
 	assert.Equal("POST", h.Request.Method)
 	assert.Equal("/v1.0/messagedispatcher", h.Request.URL.String())
+
+	var expectedBodyStr = fmt.Sprintf("<messages>"+
+		"<accountreference>%s</accountreference>"+
+		"<message>"+
+		"<to>%s</to>"+
+		"<sendat>%s</sendat>"+
+		"<type>%s</type>"+
+		"<lang>%s</lang>"+
+		"<validity>%d</validity>"+
+		"<characterset>%s</characterset>"+
+		"<retries>%d</retries>"+
+		"<body>%s</body>"+
+		"</message>"+
+		"</messages>",
+		accountReference, to, sendAtStr, messageType, lang, validity, characterSet, retries, body)
+	assert.Equal(expectedBodyStr, h.RequestBody)
 
 	if user, pass, ok := h.Request.BasicAuth(); assert.True(ok) {
 		assert.Equal("user", user)
