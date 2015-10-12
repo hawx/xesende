@@ -7,8 +7,7 @@ import (
 )
 
 type recordingHandler struct {
-	Request     *http.Request
-	RequestBody string
+	Request *http.Request
 
 	body    string
 	code    int
@@ -26,8 +25,6 @@ func newRecordingHandler(body string, code int, headers map[string]string) *reco
 
 func (h *recordingHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	h.Request = r
-	h.RequestBody = readAll(r.Body)
-	defer r.Body.Close()
 
 	for key, value := range h.headers {
 		w.Header().Set(key, value)
