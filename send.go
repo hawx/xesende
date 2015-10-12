@@ -3,19 +3,12 @@ package xesende
 import (
 	"encoding/xml"
 	"errors"
-	"time"
 )
 
 // Message is a message to send.
 type Message struct {
-	To           string
-	SendAt       time.Time
-	MessageType  string
-	Lang         string
-	Validity     int
-	CharacterSet string
-	Retries      int
-	Body         string
+	To   string
+	Body string
 }
 
 // SendResponse gives the batchid for the sent batch and lists the details of
@@ -39,15 +32,7 @@ func (c *AccountClient) Send(messages []Message) (*SendResponse, error) {
 	}
 
 	for i, message := range messages {
-		body.Message[i] = messageDispatchRequestMessage{
-			To:           message.To,
-			SendAt:       message.SendAt,
-			MessageType:  message.MessageType,
-			Lang:         message.Lang,
-			Validity:     message.Validity,
-			CharacterSet: message.CharacterSet,
-			Retries:      message.Retries,
-			Body:         message.Body}
+		body.Message[i] = messageDispatchRequestMessage{To: message.To, Body: message.Body}
 	}
 
 	req, err := c.newRequest("POST", "/v1.0/messagedispatcher", &body)
@@ -87,14 +72,8 @@ type messageDispatchRequest struct {
 }
 
 type messageDispatchRequestMessage struct {
-	To           string    `xml:"to"`
-	SendAt       time.Time `xml:"sendat"`
-	MessageType  string    `xml:"type"`
-	Lang         string    `xml:"lang"`
-	Validity     int       `xml:"validity"`
-	CharacterSet string    `xml:"characterset"`
-	Retries      int       `xml:"retries"`
-	Body         string    `xml:"body"`
+	To   string `xml:"to"`
+	Body string `xml:"body"`
 }
 
 type messageDispatchResponse struct {
