@@ -12,14 +12,14 @@ type Paging struct {
 	TotalCount int
 }
 
-// MessagesResponse is a list of returned messages along with the paging
+// SentMessagesResponse is a list of returned messages along with the paging
 // information.
 type SentMessagesResponse struct {
 	Paging
 	Messages []SentMessageResponse
 }
 
-// MessageResponse is a single sent message.
+// SentMessageResponse is a single sent message.
 type SentMessageResponse struct {
 	ID           string
 	URI          string
@@ -60,14 +60,14 @@ type MessageResponse struct {
 	Username     string
 }
 
-// MessagesReceivedResponse is a list of received messages along with the paging
+// ReceivedMessagesResponse is a list of received messages along with the paging
 // information.
 type ReceivedMessagesResponse struct {
 	Paging
 	Messages []ReceivedMessageResponse
 }
 
-// MessageReceivedResponse is a single received message.
+// ReceivedMessageResponse is a single received message.
 type ReceivedMessageResponse struct {
 	ID         string
 	URI        string
