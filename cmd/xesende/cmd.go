@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"log"
+	"os"
 
 	"github.com/gobs/pretty"
 	"hawx.me/code/hadfield"
@@ -16,6 +17,11 @@ var (
 )
 
 const pageSize = 20
+
+const authHelp = `Authentication required:
+  Either pass the --username USER and --password PASS options, or set the
+  ESENDEX_USERNAME and ESENDEX_PASSWORD environment variables.
+`
 
 func pageOpts(page int) xesende.Option {
 	startIndex := (page - 1) * pageSize
@@ -44,8 +50,20 @@ var templates = hadfield.Templates{
 func main() {
 	flag.Parse()
 
+	if *username == "" {
+		*username = os.Getenv("ESENDEX_USERNAME")
+	}
+
+	if *password == "" {
+		*password = os.Getenv("ESENDEX_PASSWORD")
+	}
+
+	if *accountReference == "" {
+		*accountReference = os.Getenv("ESENDEX_ACCOUNT")
+	}
+
 	if *username == "" || *password == "" {
-		log.Fatal("Both --username and --password options are required.")
+		log.Fatal(authHelp)
 	}
 
 	client := xesende.New(*username, *password)
