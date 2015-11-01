@@ -2,7 +2,6 @@ package xesende
 
 import (
 	"encoding/xml"
-	"errors"
 	"time"
 )
 
@@ -146,13 +145,8 @@ func (c *Client) Received(opts ...Option) (*ReceivedMessagesResponse, error) {
 	}
 
 	var v inboxResponse
-	resp, err := c.do(req, &v)
-	if err != nil {
+	if _, err := c.do(req, &v); err != nil {
 		return nil, err
-	}
-
-	if resp.StatusCode != 200 {
-		return nil, errors.New("Expected 200")
 	}
 
 	response := &ReceivedMessagesResponse{
@@ -194,13 +188,8 @@ func (c *Client) Message(id string) (*MessageResponse, error) {
 	}
 
 	var v messageHeadersResponseMessageHeader
-	resp, err := c.do(req, &v)
-	if err != nil {
+	if _, err = c.do(req, &v); err != nil {
 		return nil, err
-	}
-
-	if resp.StatusCode != 200 {
-		return nil, errors.New("Expected 200")
 	}
 
 	response := &MessageResponse{

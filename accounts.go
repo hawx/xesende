@@ -2,7 +2,6 @@ package xesende
 
 import (
 	"encoding/xml"
-	"errors"
 	"time"
 )
 
@@ -14,13 +13,8 @@ func (c *Client) Accounts() (*AccountsResponse, error) {
 	}
 
 	var v accountsResponse
-	resp, err := c.do(req, &v)
-	if err != nil {
+	if _, err = c.do(req, &v); err != nil {
 		return nil, err
-	}
-
-	if resp.StatusCode != 200 {
-		return nil, errors.New("Expected 200")
 	}
 
 	response := &AccountsResponse{

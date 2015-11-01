@@ -2,7 +2,6 @@ package xesende
 
 import (
 	"encoding/xml"
-	"errors"
 	"time"
 )
 
@@ -38,13 +37,8 @@ func (c *Client) Batches(opts ...Option) (*BatchesResponse, error) {
 	}
 
 	var v messageBatchesResponse
-	resp, err := c.do(req, &v)
-	if err != nil {
+	if _, err := c.do(req, &v); err != nil {
 		return nil, err
-	}
-
-	if resp.StatusCode != 200 {
-		return nil, errors.New("Expected 200")
 	}
 
 	response := &BatchesResponse{
@@ -89,13 +83,8 @@ func (c *Client) Batch(id string) (*BatchResponse, error) {
 	}
 
 	var v messageBatchResponse
-	resp, err := c.do(req, &v)
-	if err != nil {
+	if _, err = c.do(req, &v); err != nil {
 		return nil, err
-	}
-
-	if resp.StatusCode != 200 {
-		return nil, errors.New("Expected 200")
 	}
 
 	status := map[string]int{}
@@ -129,16 +118,8 @@ func (c *Client) CancelBatch(id string) error {
 		return err
 	}
 
-	resp, err := c.do(req, nil)
-	if err != nil {
-		return err
-	}
-
-	if resp.StatusCode != 204 {
-		return errors.New("Expected 204")
-	}
-
-	return nil
+	_, err = c.do(req, nil)
+	return err
 }
 
 type messageBatchesResponse struct {
