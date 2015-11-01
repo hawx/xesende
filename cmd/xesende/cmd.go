@@ -11,9 +11,9 @@ import (
 )
 
 var (
-	accountReference = flag.String("account-reference", "", "")
-	username         = flag.String("username", "", "")
-	password         = flag.String("password", "", "")
+	account  = flag.String("account", "", "")
+	username = flag.String("username", "", "")
+	password = flag.String("password", "", "")
 )
 
 const pageSize = 20
@@ -37,6 +37,7 @@ var templates = hadfield.Templates{
   Options:
     --username USER    # Username to authenticate with
     --password PASS    # Password to authenticate with
+    --account REF      # Account reference to use
     --help             # Display this message
 
   Commands: {{range .}}
@@ -58,8 +59,8 @@ func main() {
 		*password = os.Getenv("ESENDEX_PASSWORD")
 	}
 
-	if *accountReference == "" {
-		*accountReference = os.Getenv("ESENDEX_ACCOUNT")
+	if *account == "" {
+		*account = os.Getenv("ESENDEX_ACCOUNT")
 	}
 
 	if *username == "" || *password == "" {
@@ -75,10 +76,27 @@ func main() {
 		accountsCmd(client),
 	}
 
+	if *account == "" {
+		commands = append(commands,
+			receivedCmd(client),
+			sentCmd(client))
+	} else {
+		accountClient := client.Account(*account)
+
+		commands = append(commands,
+			receivedCmd(accountClient),
+			sentCmd(accountClient),
+			sendCmd(accountClient))
+	}
+
 	hadfield.Run(commands, templates)
 }
 
-func receivedCmd(client *xesende.Client) *hadfield.Command {
+type receivedClient interface {
+	Received(opts ...xesende.Option) (*xesende.ReceivedMessagesResponse, error)
+}
+
+func receivedCmd(client receivedClient) *hadfield.Command {
 	var page int
 
 	cmd := &hadfield.Command{
@@ -104,7 +122,11 @@ func receivedCmd(client *xesende.Client) *hadfield.Command {
 	return cmd
 }
 
-func sentCmd(client *xesende.Client) *hadfield.Command {
+type sentClient interface {
+	Sent(opts ...xesende.Option) (*xesende.SentMessagesResponse, error)
+}
+
+func sentCmd(client sentClient) *hadfield.Command {
 	var page int
 
 	cmd := &hadfield.Command{
@@ -166,6 +188,30 @@ func accountsCmd(client *xesende.Client) *hadfield.Command {
 			}
 
 			pretty.PrettyPrint(resp.Accounts)
+		},
+	}
+}
+
+func sendCmd(client *xesende.AccountClient) *hadfield.Command {
+	return &hadfield.Command{
+		Usage: "send TO BODY",
+		Short: "send messages",
+		Long: `
+  Send a single sms message.
+`,
+		Run: func(cmd *hadfield.Command, args []string) {
+			resp, err := client.Send([]xesende.Message{
+				{
+					To:   args[0],
+					Body: args[1],
+				},
+			})
+
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			pretty.PrettyPrint(resp)
 		},
 	}
 }
