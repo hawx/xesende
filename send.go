@@ -37,49 +37,10 @@ func (c *AccountClient) Send(messages []Message) (*SendResponse, error) {
 		Message:          make([]messageDispatchRequestMessage, len(messages)),
 	}
 
-	for i, message := range messages {
-		body.Message[i] = messageDispatchRequestMessage{
-			To:           message.To,
-			MessageType:  message.MessageType,
-			Lang:         message.Lang,
-			Validity:     message.Validity,
-			CharacterSet: message.CharacterSet,
-			Retries:      message.Retries,
-			Body:         message.Body,
-		}
-	}
-
-	req, err := c.newRequest("POST", "/v1.0/messagedispatcher", &body)
-	if err != nil {
-		return nil, err
-	}
-
-	var v messageDispatchResponse
-	resp, err := c.do(req, &v)
-	if err != nil {
-		return nil, err
-	}
-
-	if resp.StatusCode != 200 {
-		return nil, errors.New("Expected 200")
-	}
-
-	response := &SendResponse{
-		BatchID:  v.BatchID,
-		Messages: make([]SendResponseMessage, len(v.MessageHeader)),
-	}
-
-	for i, message := range v.MessageHeader {
-		response.Messages[i] = SendResponseMessage{
-			URI: message.URI,
-			ID:  message.ID,
-		}
-	}
-
-	return response, nil
+	return c.doSend(body, messages)
 }
 
-// Send dispatches a list of messages.
+// SendAt schedules a list of messages for dispatch.
 func (c *AccountClient) SendAt(sendAt time.Time, messages []Message) (*SendResponse, error) {
 	body := messageDispatchRequest{
 		AccountReference: c.reference,
@@ -87,6 +48,10 @@ func (c *AccountClient) SendAt(sendAt time.Time, messages []Message) (*SendRespo
 		Message:          make([]messageDispatchRequestMessage, len(messages)),
 	}
 
+	return c.doSend(body, messages)
+}
+
+func (c *AccountClient) doSend(body messageDispatchRequest, messages []Message) (*SendResponse, error) {
 	for i, message := range messages {
 		body.Message[i] = messageDispatchRequestMessage{
 			To:           message.To,
