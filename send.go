@@ -5,10 +5,17 @@ import (
 	"time"
 )
 
+type MessageType string
+
+const (
+	SMS   MessageType = "SMS"
+	Voice MessageType = "Voice"
+)
+
 // Message is a message to send.
 type Message struct {
 	To           string
-	MessageType  string
+	MessageType  MessageType
 	Lang         string
 	Validity     int
 	CharacterSet string
@@ -54,7 +61,7 @@ func (c *AccountClient) doSend(body messageDispatchRequest, messages []Message) 
 	for i, message := range messages {
 		body.Message[i] = messageDispatchRequestMessage{
 			To:           message.To,
-			MessageType:  message.MessageType,
+			MessageType:  string(message.MessageType),
 			Lang:         message.Lang,
 			Validity:     message.Validity,
 			CharacterSet: message.CharacterSet,

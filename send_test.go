@@ -27,7 +27,7 @@ func TestSendSingleMessage(t *testing.T) {
 		to               = "358973"
 		from             = "mehehherrr"
 		body             = "HWEYERW"
-		messageType      = "heeeebss"
+		messageType      = Voice
 		lang             = ".asmd.amd,ma.s,dma"
 		validity         = 234
 		characterSet     = "alkjhsdajklhsd"
@@ -101,7 +101,7 @@ func TestSendAtSingleMessage(t *testing.T) {
 		to               = "cvfgdfg"
 		from             = "2342"
 		body             = "4334ffdgfh"
-		messageType      = "blHHS"
+		messageType      = SMS
 		lang             = ".asmd.amd,ma.s,dma"
 		validity         = -3
 		characterSet     = "alkjSDhsdajklhsd"

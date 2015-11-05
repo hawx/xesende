@@ -6,13 +6,6 @@ import (
 	"time"
 )
 
-type MessageType string
-
-const (
-	SMS   MessageType = "SMS"
-	Voice MessageType = "Voice"
-)
-
 // Paging gives the details of the page that was accessed.
 type Paging struct {
 	StartIndex int
