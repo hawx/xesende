@@ -51,7 +51,7 @@ func (c *AccountClient) Received(opts ...Option) (*ReceivedMessagesResponse, err
 			To:         message.To,
 			From:       message.From,
 			Summary:    message.Summary,
-			BodyURI:    message.Body.URI,
+			bodyURI:    message.Body.URI,
 			Direction:  message.Direction,
 			Parts:      message.Parts,
 			ReadAt:     message.ReadAt.Time,

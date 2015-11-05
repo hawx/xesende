@@ -2,6 +2,7 @@ package xesende
 
 import (
 	"encoding/xml"
+	"net/url"
 	"time"
 )
 
@@ -10,6 +11,10 @@ type Paging struct {
 	StartIndex int
 	Count      int
 	TotalCount int
+}
+
+type messageWithBody interface {
+	getBodyUri() string
 }
 
 // SentMessagesResponse is a list of returned messages along with the paging
@@ -31,11 +36,14 @@ type SentMessageResponse struct {
 	To           string
 	From         string
 	Summary      string
-	BodyURI      string
 	Direction    string
 	Parts        int
 	Username     string
+
+	bodyURI string
 }
+
+func (r SentMessageResponse) getBodyUri() string { return r.bodyURI }
 
 // MessageResponse is a single message.
 type MessageResponse struct {
@@ -50,7 +58,6 @@ type MessageResponse struct {
 	To           string
 	From         string
 	Summary      string
-	BodyURI      string
 	Direction    string
 	ReadAt       time.Time
 	SentAt       time.Time
@@ -58,7 +65,11 @@ type MessageResponse struct {
 	ReadBy       string
 	Parts        int
 	Username     string
+
+	bodyURI string
 }
+
+func (r MessageResponse) getBodyUri() string { return r.bodyURI }
 
 // ReceivedMessagesResponse is a list of received messages along with the paging
 // information.
@@ -78,11 +89,20 @@ type ReceivedMessageResponse struct {
 	To         string
 	From       string
 	Summary    string
-	BodyURI    string
 	Direction  string
 	Parts      int
 	ReadAt     time.Time
 	ReadBy     string
+
+	bodyURI string
+}
+
+func (r ReceivedMessageResponse) getBodyUri() string { return r.bodyURI }
+
+// MessageBody is the body of a message.
+type MessageBody struct {
+	Text         string
+	CharacterSet string
 }
 
 // Sent returns a list of messages sent by the user.
@@ -123,7 +143,7 @@ func (c *Client) Sent(opts ...Option) (*SentMessagesResponse, error) {
 			To:           message.To,
 			From:         message.From,
 			Summary:      message.Summary,
-			BodyURI:      message.Body.URI,
+			bodyURI:      message.Body.URI,
 			Direction:    message.Direction,
 			Parts:        message.Parts,
 			Username:     message.Username,
@@ -169,7 +189,7 @@ func (c *Client) Received(opts ...Option) (*ReceivedMessagesResponse, error) {
 			To:         message.To,
 			From:       message.From,
 			Summary:    message.Summary,
-			BodyURI:    message.Body.URI,
+			bodyURI:    message.Body.URI,
 			Direction:  message.Direction,
 			Parts:      message.Parts,
 			ReadAt:     message.ReadAt.Time,
@@ -204,7 +224,7 @@ func (c *Client) Message(id string) (*MessageResponse, error) {
 		To:           v.To,
 		From:         v.From,
 		Summary:      v.Summary,
-		BodyURI:      v.Body.URI,
+		bodyURI:      v.Body.URI,
 		Direction:    v.Direction,
 		ReadAt:       v.ReadAt.Time,
 		SentAt:       v.SentAt.Time,
@@ -215,6 +235,35 @@ func (c *Client) Message(id string) (*MessageResponse, error) {
 	}
 
 	return response, nil
+}
+
+// Body returns the full body of a single message.
+func (c *Client) Body(message messageWithBody) (*MessageBody, error) {
+	u, err := url.Parse(message.getBodyUri())
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := c.newRequest("GET", u.Path, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	var v messageBodyResponse
+	if _, err = c.do(req, &v); err != nil {
+		return nil, err
+	}
+
+	return &MessageBody{
+		Text:         v.BodyText,
+		CharacterSet: v.CharacterSet,
+	}, nil
+}
+
+type messageBodyResponse struct {
+	XMLName      xml.Name `xml:"http://api.esendex.com/ns/ messagebody"`
+	BodyText     string   `xml:"bodytext"`
+	CharacterSet string   `xml:"characterset"`
 }
 
 type messageHeadersResponse struct {

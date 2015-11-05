@@ -124,7 +124,7 @@ func TestMessagesSent(t *testing.T) {
 		assert.Equal(to, message.To)
 		assert.Equal(from, message.From)
 		assert.Equal(summary, message.Summary)
-		assert.Equal(bodyURI, message.BodyURI)
+		assert.Equal(bodyURI, message.bodyURI)
 		assert.Equal(direction, message.Direction)
 		assert.Equal(parts, message.Parts)
 		assert.Equal(username, message.Username)
@@ -239,7 +239,7 @@ func TestMessagesSentWithPaging(t *testing.T) {
 		assert.Equal(to, message.To)
 		assert.Equal(from, message.From)
 		assert.Equal(summary, message.Summary)
-		assert.Equal(bodyURI, message.BodyURI)
+		assert.Equal(bodyURI, message.bodyURI)
 		assert.Equal(direction, message.Direction)
 		assert.Equal(parts, message.Parts)
 		assert.Equal(username, message.Username)
@@ -328,7 +328,7 @@ func TestMessagesByID(t *testing.T) {
 	assert.Equal(to, result.To)
 	assert.Equal(from, result.From)
 	assert.Equal(summary, result.Summary)
-	assert.Equal(bodyURI, result.BodyURI)
+	assert.Equal(bodyURI, result.bodyURI)
 	assert.Equal(direction, result.Direction)
 	assert.Equal(readAt, result.ReadAt)
 	assert.Equal(sentAt, result.SentAt)
@@ -421,7 +421,7 @@ func TestMessagesReceived(t *testing.T) {
 		assert.Equal(to, message.To)
 		assert.Equal(from, message.From)
 		assert.Equal(summary, message.Summary)
-		assert.Equal(bodyURI, message.BodyURI)
+		assert.Equal(bodyURI, message.bodyURI)
 		assert.Equal(direction, message.Direction)
 		assert.Equal(parts, message.Parts)
 		assert.Equal(readAt, message.ReadAt)
@@ -516,7 +516,7 @@ func TestMessagesReceivedWithPaging(t *testing.T) {
 		assert.Equal(to, message.To)
 		assert.Equal(from, message.From)
 		assert.Equal(summary, message.Summary)
-		assert.Equal(bodyURI, message.BodyURI)
+		assert.Equal(bodyURI, message.bodyURI)
 		assert.Equal(direction, message.Direction)
 		assert.Equal(parts, message.Parts)
 		assert.Equal(readAt, message.ReadAt)
@@ -615,10 +615,127 @@ func TestMessagesReceivedWithDateRange(t *testing.T) {
 		assert.Equal(to, message.To)
 		assert.Equal(from, message.From)
 		assert.Equal(summary, message.Summary)
-		assert.Equal(bodyURI, message.BodyURI)
+		assert.Equal(bodyURI, message.bodyURI)
 		assert.Equal(direction, message.Direction)
 		assert.Equal(parts, message.Parts)
 		assert.Equal(readAt, message.ReadAt)
 		assert.Equal(readBy, message.ReadBy)
 	}
+}
+
+func TestSentMessageBody(t *testing.T) {
+	const (
+		bodyText     = "Hey there"
+		characterSet = "GSM"
+		bodyPath     = "/message/body"
+	)
+
+	h := newRecordingHandler(fmt.Sprintf(`<?xml version="1.0" encoding="utf-8"?>
+<messagebody xmlns="http://api.esendex.com/ns/">
+    <bodytext>%s</bodytext>
+    <characterset>%s</characterset>
+</messagebody>`, bodyText, characterSet), 200, map[string]string{})
+
+	s := httptest.NewServer(h)
+	defer s.Close()
+
+	client := New("user", "pass")
+	client.BaseURL, _ = url.Parse(s.URL)
+
+	message := SentMessageResponse{bodyURI: "https://example.com" + bodyPath}
+
+	body, err := client.Body(message)
+
+	assert := assert.New(t)
+
+	assert.Nil(err)
+
+	assert.Equal("GET", h.Request.Method)
+	assert.Equal(bodyPath, h.Request.URL.Path)
+
+	if user, pass, ok := h.Request.BasicAuth(); assert.True(ok) {
+		assert.Equal("user", user)
+		assert.Equal("pass", pass)
+	}
+
+	assert.Equal(bodyText, body.Text)
+	assert.Equal(characterSet, body.CharacterSet)
+}
+
+func TestReceivedMessageBody(t *testing.T) {
+	const (
+		bodyText     = "Hey there"
+		characterSet = "GSM"
+		bodyPath     = "/message/body"
+	)
+
+	h := newRecordingHandler(fmt.Sprintf(`<?xml version="1.0" encoding="utf-8"?>
+<messagebody xmlns="http://api.esendex.com/ns/">
+    <bodytext>%s</bodytext>
+    <characterset>%s</characterset>
+</messagebody>`, bodyText, characterSet), 200, map[string]string{})
+
+	s := httptest.NewServer(h)
+	defer s.Close()
+
+	client := New("user", "pass")
+	client.BaseURL, _ = url.Parse(s.URL)
+
+	message := ReceivedMessageResponse{bodyURI: "https://example.com" + bodyPath}
+
+	body, err := client.Body(message)
+
+	assert := assert.New(t)
+
+	assert.Nil(err)
+
+	assert.Equal("GET", h.Request.Method)
+	assert.Equal(bodyPath, h.Request.URL.Path)
+
+	if user, pass, ok := h.Request.BasicAuth(); assert.True(ok) {
+		assert.Equal("user", user)
+		assert.Equal("pass", pass)
+	}
+
+	assert.Equal(bodyText, body.Text)
+	assert.Equal(characterSet, body.CharacterSet)
+}
+
+func TestMessageBody(t *testing.T) {
+	const (
+		bodyText     = "Hey there"
+		characterSet = "GSM"
+		bodyPath     = "/message/body"
+	)
+
+	h := newRecordingHandler(fmt.Sprintf(`<?xml version="1.0" encoding="utf-8"?>
+<messagebody xmlns="http://api.esendex.com/ns/">
+    <bodytext>%s</bodytext>
+    <characterset>%s</characterset>
+</messagebody>`, bodyText, characterSet), 200, map[string]string{})
+
+	s := httptest.NewServer(h)
+	defer s.Close()
+
+	client := New("user", "pass")
+	client.BaseURL, _ = url.Parse(s.URL)
+
+	message := MessageResponse{bodyURI: "https://example.com" + bodyPath}
+
+	body, err := client.Body(message)
+
+	assert := assert.New(t)
+
+	assert.Nil(err)
+
+	assert.Equal("GET", h.Request.Method)
+	assert.Equal(bodyPath, h.Request.URL.Path)
+
+	if user, pass, ok := h.Request.BasicAuth(); assert.True(ok) {
+		assert.Equal("user", user)
+		assert.Equal("pass", pass)
+	}
+
+	assert.Equal(bodyText, body.Text)
+	assert.Equal(characterSet, body.CharacterSet)
 }
