@@ -47,7 +47,7 @@ func (c *AccountClient) Received(opts ...Option) (*ReceivedMessagesResponse, err
 			Reference:  message.Reference,
 			Status:     message.Status,
 			ReceivedAt: message.ReceivedAt.Time,
-			Type:       message.Type,
+			Type:       MessageType(message.Type),
 			To:         message.To,
 			From:       message.From,
 			Summary:    message.Summary,

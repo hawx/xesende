@@ -6,6 +6,13 @@ import (
 	"time"
 )
 
+type MessageType string
+
+const (
+	SMS   MessageType = "SMS"
+	Voice MessageType = "Voice"
+)
+
 // Paging gives the details of the page that was accessed.
 type Paging struct {
 	StartIndex int
@@ -32,7 +39,7 @@ type SentMessageResponse struct {
 	Status       string
 	LastStatusAt time.Time
 	SubmittedAt  time.Time
-	Type         string
+	Type         MessageType
 	To           string
 	From         string
 	Summary      string
@@ -54,7 +61,7 @@ type MessageResponse struct {
 	LastStatusAt time.Time
 	SubmittedAt  time.Time
 	ReceivedAt   time.Time
-	Type         string
+	Type         MessageType
 	To           string
 	From         string
 	Summary      string
@@ -85,7 +92,7 @@ type ReceivedMessageResponse struct {
 	Reference  string
 	Status     string
 	ReceivedAt time.Time
-	Type       string
+	Type       MessageType
 	To         string
 	From       string
 	Summary    string
@@ -139,7 +146,7 @@ func (c *Client) Sent(opts ...Option) (*SentMessagesResponse, error) {
 			Status:       message.Status,
 			LastStatusAt: message.LastStatusAt.Time,
 			SubmittedAt:  message.SubmittedAt.Time,
-			Type:         message.Type,
+			Type:         MessageType(message.Type),
 			To:           message.To,
 			From:         message.From,
 			Summary:      message.Summary,
@@ -185,7 +192,7 @@ func (c *Client) Received(opts ...Option) (*ReceivedMessagesResponse, error) {
 			Reference:  message.Reference,
 			Status:     message.Status,
 			ReceivedAt: message.ReceivedAt.Time,
-			Type:       message.Type,
+			Type:       MessageType(message.Type),
 			To:         message.To,
 			From:       message.From,
 			Summary:    message.Summary,
@@ -220,7 +227,7 @@ func (c *Client) Message(id string) (*MessageResponse, error) {
 		LastStatusAt: v.LastStatusAt.Time,
 		SubmittedAt:  v.SubmittedAt.Time,
 		ReceivedAt:   v.ReceivedAt.Time,
-		Type:         v.Type,
+		Type:         MessageType(v.Type),
 		To:           v.To,
 		From:         v.From,
 		Summary:      v.Summary,

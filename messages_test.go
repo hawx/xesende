@@ -65,7 +65,7 @@ func TestMessagesSent(t *testing.T) {
 		uri         = "http://somemessageheader"
 		reference   = "EXETRTRE"
 		status      = "STATUS"
-		messageType = "TYPE"
+		messageType = Voice
 		to          = "4538224364236"
 		from        = "428377843"
 		summary     = "SUM"
@@ -89,7 +89,7 @@ func TestMessagesSent(t *testing.T) {
   <status>`+status+`</status>
   <laststatusat>`+lastStatusAtStr+`</laststatusat>
   <submittedat>`+submittedAtStr+`</submittedat>
-  <type>`+messageType+`</type>
+  <type>`+string(messageType)+`</type>
   <to>
     <phonenumber>`+to+`</phonenumber>
   </to>
@@ -176,7 +176,7 @@ func TestMessagesSentWithPaging(t *testing.T) {
 		uri         = "http://somemessageheader"
 		reference   = "EXETRTRE"
 		status      = "STATUS"
-		messageType = "TYPE"
+		messageType = SMS
 		to          = "4538224364236"
 		from        = "428377843"
 		summary     = "SUM"
@@ -200,7 +200,7 @@ func TestMessagesSentWithPaging(t *testing.T) {
   <status>`+status+`</status>
   <laststatusat>`+lastStatusAtStr+`</laststatusat>
   <submittedat>`+submittedAtStr+`</submittedat>
-  <type>`+messageType+`</type>
+  <type>`+string(messageType)+`</type>
   <to>
     <phonenumber>`+to+`</phonenumber>
   </to>
@@ -268,7 +268,7 @@ func TestMessagesByID(t *testing.T) {
 		uri         = "http://somemessageheader"
 		reference   = "EXETRTRE"
 		status      = "STATUS"
-		messageType = "TYPE"
+		messageType = Voice
 		to          = "4538224364236"
 		from        = "428377843"
 		summary     = "SUM"
@@ -301,7 +301,7 @@ func TestMessagesByID(t *testing.T) {
  <laststatusat>`+lastStatusAtStr+`</laststatusat>
  <submittedat>`+submittedAtStr+`</submittedat>
  <receivedat>`+receivedAtStr+`</receivedat>
- <type>`+messageType+`</type>
+ <type>`+string(messageType)+`</type>
  <to>
    <phonenumber>`+to+`</phonenumber>
  </to>
@@ -363,7 +363,7 @@ func TestMessagesReceived(t *testing.T) {
 		uri         = "http://somemessageheader"
 		reference   = "EXETRTRE"
 		status      = "STATUS"
-		messageType = "TYPE"
+		messageType = SMS
 		to          = "4538224364236"
 		from        = "428377843"
 		summary     = "SUM"
@@ -386,7 +386,7 @@ func TestMessagesReceived(t *testing.T) {
   <reference>`+reference+`</reference>
   <status>`+status+`</status>
   <receivedat>`+receivedAtStr+`</receivedat>
-  <type>`+messageType+`</type>
+  <type>`+string(messageType)+`</type>
   <to>
     <phonenumber>`+to+`</phonenumber>
   </to>
@@ -454,7 +454,7 @@ func TestMessagesReceivedWithPaging(t *testing.T) {
 		uri         = "http://somemessageheader"
 		reference   = "EXETRTRE"
 		status      = "STATUS"
-		messageType = "TYPE"
+		messageType = SMS
 		to          = "4538224364236"
 		from        = "428377843"
 		summary     = "SUM"
@@ -477,7 +477,7 @@ func TestMessagesReceivedWithPaging(t *testing.T) {
   <reference>`+reference+`</reference>
   <status>`+status+`</status>
   <receivedat>`+receivedAtStr+`</receivedat>
-  <type>`+messageType+`</type>
+  <type>`+string(messageType)+`</type>
   <to>
     <phonenumber>`+to+`</phonenumber>
   </to>
@@ -549,7 +549,7 @@ func TestMessagesReceivedWithDateRange(t *testing.T) {
 		uri         = "http://somemessageheader"
 		reference   = "EXETRTRE"
 		status      = "STATUS"
-		messageType = "TYPE"
+		messageType = Voice
 		to          = "4538224364236"
 		from        = "428377843"
 		summary     = "SUM"
@@ -576,7 +576,7 @@ func TestMessagesReceivedWithDateRange(t *testing.T) {
   <reference>`+reference+`</reference>
   <status>`+status+`</status>
   <receivedat>`+receivedAtStr+`</receivedat>
-  <type>`+messageType+`</type>
+  <type>`+string(messageType)+`</type>
   <to>
     <phonenumber>`+to+`</phonenumber>
   </to>

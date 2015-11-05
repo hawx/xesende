@@ -19,7 +19,7 @@ func TestAccountMessagesSent(t *testing.T) {
 		uri         = "http://somemessageheader"
 		reference   = "EXETRTRE"
 		status      = "STATUS"
-		messageType = "TYPE"
+		messageType = Voice
 		to          = "4538224364236"
 		from        = "428377843"
 		summary     = "SUM"
@@ -43,7 +43,7 @@ func TestAccountMessagesSent(t *testing.T) {
   <status>`+status+`</status>
   <laststatusat>`+lastStatusAtStr+`</laststatusat>
   <submittedat>`+submittedAtStr+`</submittedat>
-  <type>`+messageType+`</type>
+  <type>`+string(messageType)+`</type>
   <to>
     <phonenumber>`+to+`</phonenumber>
   </to>
@@ -115,7 +115,7 @@ func TestAccountMessagesReceived(t *testing.T) {
 		uri         = "http://somemessageheader"
 		reference   = "EXETRTRE"
 		status      = "STATUS"
-		messageType = "TYPE"
+		messageType = SMS
 		to          = "4538224364236"
 		from        = "428377843"
 		summary     = "SUM"
@@ -138,7 +138,7 @@ func TestAccountMessagesReceived(t *testing.T) {
   <reference>`+reference+`</reference>
   <status>`+status+`</status>
   <receivedat>`+receivedAtStr+`</receivedat>
-  <type>`+messageType+`</type>
+  <type>`+string(messageType)+`</type>
   <to>
     <phonenumber>`+to+`</phonenumber>
   </to>
