@@ -14,7 +14,7 @@ type Paging struct {
 }
 
 type messageWithBody interface {
-	getBodyUri() string
+	getBodyURI() string
 }
 
 // SentMessagesResponse is a list of returned messages along with the paging
@@ -24,7 +24,7 @@ type SentMessagesResponse struct {
 	Messages []SentMessageResponse
 }
 
-// SentMessageResponse is a single sent message.
+// SentMessageResponse is a single sent message. It implements messageWithBody.
 type SentMessageResponse struct {
 	ID           string
 	URI          string
@@ -43,9 +43,9 @@ type SentMessageResponse struct {
 	bodyURI string
 }
 
-func (r SentMessageResponse) getBodyUri() string { return r.bodyURI }
+func (r SentMessageResponse) getBodyURI() string { return r.bodyURI }
 
-// MessageResponse is a single message.
+// MessageResponse is a single message. It implements messageWithBody.
 type MessageResponse struct {
 	ID           string
 	URI          string
@@ -69,7 +69,7 @@ type MessageResponse struct {
 	bodyURI string
 }
 
-func (r MessageResponse) getBodyUri() string { return r.bodyURI }
+func (r MessageResponse) getBodyURI() string { return r.bodyURI }
 
 // ReceivedMessagesResponse is a list of received messages along with the paging
 // information.
@@ -78,7 +78,7 @@ type ReceivedMessagesResponse struct {
 	Messages []ReceivedMessageResponse
 }
 
-// ReceivedMessageResponse is a single received message.
+// ReceivedMessageResponse is a single received message. It implements messageWithBody.
 type ReceivedMessageResponse struct {
 	ID         string
 	URI        string
@@ -97,7 +97,7 @@ type ReceivedMessageResponse struct {
 	bodyURI string
 }
 
-func (r ReceivedMessageResponse) getBodyUri() string { return r.bodyURI }
+func (r ReceivedMessageResponse) getBodyURI() string { return r.bodyURI }
 
 // MessageBody is the body of a message.
 type MessageBody struct {
@@ -239,7 +239,7 @@ func (c *Client) Message(id string) (*MessageResponse, error) {
 
 // Body returns the full body of a single message.
 func (c *Client) Body(message messageWithBody) (*MessageBody, error) {
-	u, err := url.Parse(message.getBodyUri())
+	u, err := url.Parse(message.getBodyURI())
 	if err != nil {
 		return nil, err
 	}

@@ -40,6 +40,22 @@ func ExampleClient_Received() {
 	}
 }
 
+func ExampleClient_Body() {
+	client := New("user@example.com", "pass")
+
+	message, err := client.Message("messageId")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	body, err := client.Body(message)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Printf("%s: %s", message.ID, body.Text)
+}
+
 func TestMessagesSent(t *testing.T) {
 	const (
 		startIndex  = 0
