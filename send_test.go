@@ -92,6 +92,64 @@ func TestSendSingleMessage(t *testing.T) {
 	assert.Equal(messageURI, result.Messages[0].URI)
 }
 
+func TestSendSingleMessageMissingOptions(t *testing.T) {
+	const (
+		batchID          = "batchID"
+		messageID        = "messageID"
+		messageURI       = "messageURI"
+		accountReference = "EXWHATEVS"
+		to               = "358973"
+		body             = "HWEYERW"
+	)
+
+	h := newRecordingHandler(`<?xml version="1.0" encoding="utf-8"?>
+<messageheaders batchid="`+batchID+`" xmlns="http://api.esendex.com/ns/">
+  <messageheader uri="`+messageURI+`" id="`+messageID+`" />
+</messageheaders>`, 200, map[string]string{})
+	s := httptest.NewServer(h)
+	defer s.Close()
+
+	client := New("user", "pass")
+	client.BaseURL, _ = url.Parse(s.URL)
+
+	account := client.Account(accountReference)
+
+	result, err := account.Send([]Message{
+		{
+			To:           to,
+			Body:         body,
+		},
+	})
+
+	assert := assert.New(t)
+
+	assert.Nil(err)
+
+	assert.Equal("POST", h.Request.Method)
+	assert.Equal("/v1.0/messagedispatcher", h.Request.URL.String())
+
+	var expectedBodyStr = fmt.Sprintf("<messages>"+
+		"<accountreference>%s</accountreference>"+
+		"<message>"+
+		"<to>%s</to>"+
+		"<body>%s</body>"+
+		"</message>"+
+		"</messages>",
+		accountReference, to, body)
+	assert.Equal(expectedBodyStr, h.RequestBody)
+
+	if user, pass, ok := h.Request.BasicAuth(); assert.True(ok) {
+		assert.Equal("user", user)
+		assert.Equal("pass", pass)
+	}
+
+	assert.Equal(batchID, result.BatchID)
+
+	assert.Equal(1, len(result.Messages))
+	assert.Equal(messageID, result.Messages[0].ID)
+	assert.Equal(messageURI, result.Messages[0].URI)
+}
+
 func TestSendAtSingleMessage(t *testing.T) {
 	const (
 		batchID          = "batchID"

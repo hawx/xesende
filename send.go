@@ -104,11 +104,11 @@ type messageDispatchRequest struct {
 
 type messageDispatchRequestMessage struct {
 	To           string `xml:"to"`
-	MessageType  string `xml:"type"`
-	Lang         string `xml:"lang"`
-	Validity     int    `xml:"validity"`
-	CharacterSet string `xml:"characterset"`
-	Retries      int    `xml:"retries"`
+	MessageType  string `xml:"type,omitempty"`
+	Lang         string `xml:"lang,omitempty"`
+	Validity     int    `xml:"validity,omitempty"`
+	CharacterSet string `xml:"characterset,omitempty"`
+	Retries      int    `xml:"retries,omitempty"`
 	Body         string `xml:"body"`
 }
 
