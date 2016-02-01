@@ -73,6 +73,9 @@ func TestMessagesSent(t *testing.T) {
 		direction   = "OUT"
 		parts       = 1
 		username    = "user"
+		failureCode = 113
+		failureDesc = "Temporary issues with all the things"
+		failurePerm = true
 	)
 
 	var (
@@ -101,6 +104,11 @@ func TestMessagesSent(t *testing.T) {
   <direction>`+direction+`</direction>
   <parts>`+strconv.Itoa(parts)+`</parts>
   <username>`+username+`</username>
+  <failurereason>
+    <code>`+strconv.Itoa(failureCode)+`</code>
+    <description>`+failureDesc+`</description>
+    <permanentfailure>`+strconv.FormatBool(failurePerm)+`</permanentfailure>
+  </failurereason>
  </messageheader>
 </messageheaders>`, 200, map[string]string{})
 	s := httptest.NewServer(h)
@@ -144,6 +152,9 @@ func TestMessagesSent(t *testing.T) {
 		assert.Equal(direction, message.Direction)
 		assert.Equal(parts, message.Parts)
 		assert.Equal(username, message.Username)
+		assert.Equal(failureCode, message.FailureReason.Code)
+		assert.Equal(failureDesc, message.FailureReason.Description)
+		assert.Equal(failurePerm, message.FailureReason.Permanent)
 	}
 }
 
@@ -277,6 +288,9 @@ func TestMessagesByID(t *testing.T) {
 		parts       = 1
 		username    = "user"
 		readBy      = "john.doe@example.com"
+		failureCode = 111
+		failureDesc = "Temporary issues with some of the things"
+		failurePerm = false
 	)
 
 	var (
@@ -317,6 +331,11 @@ func TestMessagesByID(t *testing.T) {
  <readby>`+readBy+`</readby>
  <parts>`+strconv.Itoa(parts)+`</parts>
  <username>`+username+`</username>
+ <failurereason>
+  <code>`+strconv.Itoa(failureCode)+`</code>
+  <description>`+failureDesc+`</description>
+  <permanentfailure>`+strconv.FormatBool(failurePerm)+`</permanentfailure>
+ </failurereason>
 </messageheader>`, 200, map[string]string{})
 	s := httptest.NewServer(h)
 	defer s.Close()
@@ -352,6 +371,9 @@ func TestMessagesByID(t *testing.T) {
 	assert.Equal(readBy, result.ReadBy)
 	assert.Equal(parts, result.Parts)
 	assert.Equal(username, result.Username)
+	assert.Equal(failureCode, result.FailureReason.Code)
+	assert.Equal(failureDesc, result.FailureReason.Description)
+	assert.Equal(failurePerm, result.FailureReason.Permanent)
 }
 
 func TestMessagesReceived(t *testing.T) {

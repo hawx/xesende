@@ -13,6 +13,13 @@ type Paging struct {
 	TotalCount int
 }
 
+// FailureReason gives detailed information for why a message failed to send.
+type FailureReason struct {
+	Code        int
+	Description string
+	Permanent   bool
+}
+
 type messageWithBody interface {
 	getBodyURI() string
 }
@@ -26,19 +33,20 @@ type SentMessagesResponse struct {
 
 // SentMessageResponse is a single sent message. It implements messageWithBody.
 type SentMessageResponse struct {
-	ID           string
-	URI          string
-	Reference    string
-	Status       string
-	LastStatusAt time.Time
-	SubmittedAt  time.Time
-	Type         MessageType
-	To           string
-	From         string
-	Summary      string
-	Direction    string
-	Parts        int
-	Username     string
+	ID            string
+	URI           string
+	Reference     string
+	Status        string
+	LastStatusAt  time.Time
+	SubmittedAt   time.Time
+	Type          MessageType
+	To            string
+	From          string
+	Summary       string
+	Direction     string
+	Parts         int
+	Username      string
+	FailureReason *FailureReason
 
 	bodyURI string
 }
@@ -65,6 +73,7 @@ type MessageResponse struct {
 	ReadBy       string
 	Parts        int
 	Username     string
+	FailureReason *FailureReason
 
 	bodyURI string
 }
@@ -147,6 +156,14 @@ func (c *Client) Sent(opts ...Option) (*SentMessagesResponse, error) {
 			Direction:    message.Direction,
 			Parts:        message.Parts,
 			Username:     message.Username,
+		}
+
+		if message.FailureReason != nil {
+			response.Messages[i].FailureReason = &FailureReason{
+				Code:        message.FailureReason.Code,
+				Description: message.FailureReason.Description,
+				Permanent:   message.FailureReason.Permanent,
+			}
 		}
 	}
 
@@ -234,6 +251,14 @@ func (c *Client) Message(id string) (*MessageResponse, error) {
 		Username:     v.Username,
 	}
 
+	if v.FailureReason != nil {
+		response.FailureReason = &FailureReason{
+			Code:        v.FailureReason.Code,
+			Description: v.FailureReason.Description,
+			Permanent:   v.FailureReason.Permanent,
+		}
+	}
+
 	return response, nil
 }
 
@@ -266,6 +291,12 @@ type messageBodyResponse struct {
 	CharacterSet string   `xml:"characterset"`
 }
 
+type messageFailureReason struct {
+	Code        int    `xml:"code"`
+	Description string `xml:"description"`
+	Permanent   bool   `xml:"permanentfailure"`
+}
+
 type messageHeadersResponse struct {
 	XMLName    xml.Name                              `xml:"http://api.esendex.com/ns/ messageheaders"`
 	StartIndex int                                   `xml:"startindex,attr"`
@@ -289,13 +320,14 @@ type messageHeadersResponseMessageHeader struct {
 	Body         struct {
 		URI string `xml:"uri,attr"`
 	} `xml:"body"`
-	Direction   string            `xml:"direction"`
-	ReadAt      messageHeaderTime `xml:"readat"`
-	SentAt      messageHeaderTime `xml:"sentat"`
-	DeliveredAt messageHeaderTime `xml:"deliveredat"`
-	ReadBy      string            `xml:"readby"`
-	Parts       int               `xml:"parts"`
-	Username    string            `xml:"username"`
+	Direction     string                `xml:"direction"`
+	ReadAt        messageHeaderTime     `xml:"readat"`
+	SentAt        messageHeaderTime     `xml:"sentat"`
+	DeliveredAt   messageHeaderTime     `xml:"deliveredat"`
+	ReadBy        string                `xml:"readby"`
+	Parts         int                   `xml:"parts"`
+	Username      string                `xml:"username"`
+	FailureReason *messageFailureReason `xml:"failurereason"`
 }
 
 type inboxResponse struct {

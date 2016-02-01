@@ -116,8 +116,8 @@ func TestSendSingleMessageMissingOptions(t *testing.T) {
 
 	result, err := account.Send([]Message{
 		{
-			To:           to,
-			Body:         body,
+			To:   to,
+			Body: body,
 		},
 	})
 
