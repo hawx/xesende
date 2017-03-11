@@ -89,7 +89,7 @@ func main() {
 			sendCmd(accountClient))
 	}
 
-	hadfield.Run(commands, templates)
+	hadfield.Run(commands, hadfield.Topics{}, templates)
 }
 
 type receivedClient interface {
